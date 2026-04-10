@@ -4,7 +4,7 @@
 
 const GROUPS = {
   A: ["México",        "África do Sul",     "Coreia do Sul",       "Tchéquia"],
-  B: ["Canadá",       "Bósnia e Herzegovina",      "Catar",      "Suiça"],
+  B: ["Canadá",       "Bósnia e Herzegovina",      "Catar",      "Suíça"],
   C: ["Brasil",    "Marrocos",        "Haiti",      "Escócia"],
   D: ["Estados Unidos",       "Paraguai",        "Austrália",          "Turquia"],
   E: ["Alemanha",       "Curaçao",      "Costa do Marfim",      "Equador"],
