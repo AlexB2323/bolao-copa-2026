@@ -19,7 +19,6 @@ function showScreen(id) {
   });
 }
 
-// Mostra login por padrão
 showScreen("admin-login");
 
 /* ---- Login ----------------------------------------------- */
@@ -43,24 +42,18 @@ async function tryLogin() {
 }
 
 document.getElementById("admin-logout-btn").addEventListener("click", async () => {
-  await signOut(auth);
-  showScreen("admin-login");
+  await signOut(auth); showScreen("admin-login");
 });
 
-/* ---- Auth state ------------------------------------------ */
 onAuthStateChanged(auth, async user => {
   if (!user) { showScreen("admin-login"); return; }
-
   if (!ADMIN_EMAILS.includes(user.email)) {
-    await signOut(auth);
-    showScreen("admin-login");
+    await signOut(auth); showScreen("admin-login");
     document.getElementById("admin-login-err").textContent = "Acesso não autorizado.";
     return;
   }
-
   showScreen("loading-screen");
   document.querySelector("#loading-screen p").textContent = "Carregando painel...";
-
   try {
     initAdminNav();
     await renderUsersPage();
@@ -84,6 +77,7 @@ function initAdminNav() {
         case "usuarios":          await renderUsersPage(); break;
         case "resultados-grupos": await renderAdminGroups(); break;
         case "resultados-mata":   await renderAdminBracket(); break;
+        case "terceiros":         await renderThirdsPage(); break;
         case "palpites":          await renderPalpitesPage(); break;
         case "ranking-admin":     await renderAdminRanking(); break;
       }
@@ -240,6 +234,162 @@ async function renderAdminBracket() {
     b.innerHTML = `<div class="champion-label">🏆 Campeão Real</div><div class="champion-name">${getFlag(champ)} ${champ}</div>`;
     container.appendChild(b);
   }
+}
+
+/* ---- 3ºs Colocados --------------------------------------- */
+async function renderThirdsPage() {
+  const container = document.getElementById("thirds-container");
+  if (!container) return;
+  container.innerHTML = `<p style="color:#94a3b8">Carregando...</p>`;
+
+  const scores = await DB.getResultsGroups();
+  const cards  = await DB.getResultsCards();  // pode retornar {} se não tiver
+  const thirds = getThirdsRanking(scores, cards);
+
+  if (!thirds.length) {
+    container.innerHTML = `
+      <div class="admin-card">
+        <p style="color:#94a3b8;font-style:italic;font-size:13px">
+          Nenhum grupo com placar completo ainda. Preencha os resultados da fase de grupos primeiro.
+        </p>
+      </div>`;
+    return;
+  }
+
+  const criterionLabel = { PTS:"Pontos", SG:"Saldo de Gols", GP:"Gols Marcados", FP:"Fair Play", "":"—" };
+  const criterionColor = { PTS:"#3b82f6", SG:"#f59e0b", GP:"#10b981", FP:"#ef4444", "":"#94a3b8" };
+
+  const top8    = thirds.slice(0, 8);
+  const rest    = thirds.slice(8);
+  const cutLine = thirds.length >= 8 ? thirds[7] : null;
+
+  container.innerHTML = `
+    <div class="admin-card" style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <div>
+          <h3 style="margin-bottom:2px">Todos os 3ºs Colocados — ${thirds.length}/12 grupos definidos</h3>
+          <p style="font-size:12px;color:#64748b;font-weight:400">
+            Os 8 primeiros classificam para os 16avos de final.
+            A coluna <strong>Critério</strong> indica o que separou cada time do seguinte.
+          </p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:4px;font-size:12px"><span style="width:10px;height:10px;border-radius:2px;background:#dcfce7;border:1px solid #86efac;display:inline-block"></span>Classificado</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:12px"><span style="width:10px;height:10px;border-radius:2px;background:#fee2e2;border:1px solid #fca5a5;display:inline-block"></span>Eliminado</span>
+        </div>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="admin-table thirds-table">
+          <thead>
+            <tr>
+              <th style="width:36px">#</th>
+              <th>Seleção</th>
+              <th style="text-align:center">Gr</th>
+              <th style="text-align:center">J</th>
+              <th style="text-align:center">V</th>
+              <th style="text-align:center">E</th>
+              <th style="text-align:center">D</th>
+              <th style="text-align:center">GP</th>
+              <th style="text-align:center">GC</th>
+              <th style="text-align:center">SG</th>
+              <th style="text-align:center">PTS</th>
+              <th style="text-align:center">Critério</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${thirds.map((t, i) => {
+              const isQ   = i < 8;
+              const isCut = cutLine && i === 7;
+              const rowClass = isQ ? "thirds-row-q" : "thirds-row-e";
+              const criterionBadge = t.criterion
+                ? `<span class="criterion-badge" style="background:${criterionColor[t.criterion]}20;color:${criterionColor[t.criterion]};border:1px solid ${criterionColor[t.criterion]}40">${criterionLabel[t.criterion]}</span>`
+                : `<span style="color:#94a3b8">—</span>`;
+
+              return `
+                <tr class="${rowClass}${isCut ? " thirds-cutline" : ""}">
+                  <td style="text-align:center;font-weight:700;font-size:14px">${i < 3 ? ["🥇","🥈","🥉"][i] : i+1+"º"}</td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span style="font-size:18px">${getFlag(t.name)}</span>
+                      <span style="font-weight:600">${t.name}</span>
+                      ${isQ ? '<span class="thirds-q-badge">CLASSIF.</span>' : '<span class="thirds-e-badge">ELIM.</span>'}
+                    </div>
+                  </td>
+                  <td style="text-align:center;font-weight:700;color:#0e6b28">Gr.${t.group}</td>
+                  <td style="text-align:center">${t.pld}</td>
+                  <td style="text-align:center">${t.w}</td>
+                  <td style="text-align:center">${t.d}</td>
+                  <td style="text-align:center">${t.l}</td>
+                  <td style="text-align:center">${t.gf}</td>
+                  <td style="text-align:center">${t.ga}</td>
+                  <td style="text-align:center;font-weight:600;color:${t.gd>=0?"#0e6b28":"#dc2626"}">${t.gd>0?"+"+t.gd:t.gd}</td>
+                  <td style="text-align:center;font-weight:700;font-size:15px">${t.pts}</td>
+                  <td style="text-align:center">${criterionBadge}</td>
+                </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Seção de cartões (Fair Play) -->
+    <div class="admin-card">
+      <h3>Fair Play — Registro de Cartões dos 3ºs Colocados</h3>
+      <p style="font-size:12px;color:#64748b;margin-bottom:14px;font-weight:400">
+        Preencha apenas em caso de empate nos critérios anteriores.
+        Amarelo=1pt · Vermelho indireto=3pts · Vermelho direto=4pts · Amarelo+Vermelho=5pts
+      </p>
+      <div style="overflow-x:auto">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Seleção</th>
+              <th style="text-align:center">Gr</th>
+              <th style="text-align:center" title="Cartões amarelos">🟨 Amarelos</th>
+              <th style="text-align:center" title="Vermelho por 2 amarelos">🟨🟥 V.Indireto</th>
+              <th style="text-align:center" title="Vermelho direto">🟥 V.Direto</th>
+              <th style="text-align:center" title="Amarelo + vermelho direto">🟨🟥 Am+V.Dir</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${thirds.map(t => {
+              const c = {};  // cards carregados virão do DB
+              return `
+                <tr>
+                  <td><span style="font-size:16px">${getFlag(t.name)}</span> ${t.name}</td>
+                  <td style="text-align:center;font-weight:700;color:#0e6b28">Gr.${t.group}</td>
+                  <td style="text-align:center"><input class="card-input" type="number" min="0" max="20" value="${(cards[t.name]?.y)||0}" data-team="${t.name}" data-card="y" /></td>
+                  <td style="text-align:center"><input class="card-input" type="number" min="0" max="5"  value="${(cards[t.name]?.yr)||0}" data-team="${t.name}" data-card="yr" /></td>
+                  <td style="text-align:center"><input class="card-input" type="number" min="0" max="5"  value="${(cards[t.name]?.r)||0}"  data-team="${t.name}" data-card="r" /></td>
+                  <td style="text-align:center"><input class="card-input" type="number" min="0" max="5"  value="${(cards[t.name]?.yr2)||0}" data-team="${t.name}" data-card="yr2" /></td>
+                </tr>`;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  // Salva cartões ao editar
+  let cardTimer = null;
+  container.addEventListener("input", async e => {
+    const el = e.target;
+    if (!el.classList.contains("card-input")) return;
+    clearTimeout(cardTimer);
+    cardTimer = setTimeout(async () => {
+      const cur = await DB.getResultsCards();
+      container.querySelectorAll(".card-input").forEach(inp => {
+        const team = inp.dataset.team;
+        const card = inp.dataset.card;
+        if (!cur[team]) cur[team] = { y:0, yr:0, r:0, yr2:0 };
+        cur[team][card] = parseInt(inp.value, 10) || 0;
+      });
+      await DB.saveResultsCards(cur);
+      // Recarrega a tabela para refletir possíveis mudanças no ranking
+      await renderThirdsPage();
+    }, 800);
+  });
 }
 
 /* ---- Palpites por Participante --------------------------- */
