@@ -76,9 +76,18 @@ const DB = {
   async saveResultsKO(results) {
     await setDoc(doc(db, "results", "knockout"), results);
   },
+
+  // ---- Cartões (Fair Play) para 3ºs colocados --------------
+  async getResultsCards() {
+    const snap = await getDoc(doc(db, "results", "cards"));
+    return snap.exists() ? snap.data() : {};
+  },
+
+  async saveResultsCards(cards) {
+    await setDoc(doc(db, "results", "cards"), cards);
+  },
 };
 
-// Listener em tempo real para resultados
 function watchResults(callback) {
   const u1 = onSnapshot(doc(db, "results", "groups"),   () => callback());
   const u2 = onSnapshot(doc(db, "results", "knockout"), () => callback());
