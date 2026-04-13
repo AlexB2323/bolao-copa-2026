@@ -50,6 +50,7 @@
       <button class="nav-btn active" data-page="usuarios">Usuários</button>
       <button class="nav-btn" data-page="resultados-grupos">Resultados — Grupos</button>
       <button class="nav-btn" data-page="resultados-mata">Resultados — Mata-Mata</button>
+      <button class="nav-btn" data-page="terceiros">3ºs Colocados</button>
       <button class="nav-btn" data-page="palpites">Palpites por Usuário</button>
       <button class="nav-btn" data-page="ranking-admin">Ranking</button>
     </nav>
@@ -92,6 +93,15 @@
         <div id="admin-bracket-container"></div>
       </section>
 
+      <!-- NOVA ABA: 3ºs COLOCADOS -->
+      <section id="page-terceiros" class="page">
+        <div class="page-header">
+          <h2>3ºs Colocados — Classificação</h2>
+          <p>Ranking dos 3ºs colocados de cada grupo com critérios de desempate FIFA. Os 8 melhores avançam para os 16avos.</p>
+        </div>
+        <div id="thirds-container"></div>
+      </section>
+
       <section id="page-palpites" class="page">
         <div class="page-header">
           <h2>Palpites por Participante</h2>
@@ -123,14 +133,12 @@
     </main>
   </div>
 
-  <!-- Scripts globais -->
   <script src="../js/data.js"></script>
   <script src="../js/standings.js"></script>
   <script src="../js/bracket.js"></script>
   <script src="../js/scoring.js"></script>
   <script src="../js/ui.js"></script>
   <script src="../js/ranking.js"></script>
-  <!-- Módulo admin -->
   <script type="module" src="admin.js"></script>
 </body>
 </html>
