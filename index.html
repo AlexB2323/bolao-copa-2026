@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bolão Copa do Mundo 2026</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="login-screen" class="login-screen">
+    <div class="login-box">
+      <div class="login-logo">⚽</div>
+      <h1>Bolão Copa 2026</h1>
+      <p>Entre com seu e-mail e senha para acessar</p>
+      <div class="login-form">
+        <input type="email"    id="login-email" placeholder="Seu e-mail" autocomplete="email" />
+        <input type="password" id="login-pass"  placeholder="Senha" autocomplete="current-password" />
+        <button id="login-btn" class="btn-primary">Entrar</button>
+        <p id="login-error" class="login-error"></p>
+      </div>
+      <a href="admin/index.html" class="admin-link">⚙ Acesso Admin</a>
+    </div>
+  </div>
+  <div id="loading-screen" class="loading-screen" style="display:none">
+    <div class="loading-box"><div class="loading-spinner"></div><p>Carregando...</p></div>
+  </div>
+  <div id="app" style="display:none">
+    <header class="header">
+      <div class="header-inner">
+        <div class="header-logo">
+          <span class="logo-icon">⚽</span>
+          <div><h1>Bolão Copa 2026</h1><p>48 seleções · 12 grupos</p></div>
+        </div>
+        <div class="header-right">
+          <div class="user-info">
+            <span class="user-name" id="header-username"></span>
+            <span class="pts-badge"><span class="pts-label">pts</span><span class="pts-value" id="header-pts">0</span></span>
+          </div>
+          <button class="btn-logout" id="btn-logout">Sair</button>
+        </div>
+      </div>
+    </header>
+    <nav class="main-nav">
+      <button class="nav-btn active" data-page="grupos">Fase de Grupos</button>
+      <button class="nav-btn" data-page="classificacao">Classificação</button>
+      <button class="nav-btn" data-page="matamata">Mata-Mata</button>
+      <button class="nav-btn" data-page="pontuacao">Minha Pontuação</button>
+      <button class="nav-btn" data-page="ranking">Ranking</button>
+      <button class="nav-btn" data-page="regras">Regras</button>
+    </nav>
+    <main class="container">
+      <section id="page-grupos" class="page active">
+        <div class="page-header"><h2>Palpites — Fase de Grupos</h2><p>Preencha o placar de cada jogo.</p></div>
+        <div class="groups-grid" id="groups-container"></div>
+      </section>
+      <section id="page-classificacao" class="page">
+        <div class="page-header">
+          <h2>Classificação por Grupo</h2>
+          <div class="legend">
+            <span class="badge badge-q">1º e 2º — Classificados</span>
+            <span class="badge badge-t">3º — Possível melhor 3º</span>
+            <span class="badge badge-e">4º — Eliminado</span>
+          </div>
+        </div>
+        <div class="groups-grid" id="standings-container"></div>
+        <div class="thirds-box" id="thirds-summary"></div>
+      </section>
+      <section id="page-matamata" class="page">
+        <div class="page-header"><h2>Chaveamento Mata-Mata</h2><p>Monte seu palpite escolhendo os confrontos e vencedores.</p></div>
+        <div id="bracket-container"></div>
+      </section>
+      <section id="page-pontuacao" class="page">
+        <div class="page-header"><h2>Minha Pontuação</h2></div>
+        <div class="score-cards" id="score-cards"></div>
+        <div id="score-detail"></div>
+      </section>
+      <section id="page-ranking" class="page">
+        <div class="page-header"><h2>Ranking Geral</h2><p>Pontuação calculada com base nos resultados divulgados.</p></div>
+        <div id="ranking-container"></div>
+      </section>
+      <section id="page-regras" class="page">
+        <div class="page-header"><h2>Regras de Pontuação</h2></div>
+        <div class="rules-grid">
+          <div class="rules-card">
+            <h3>Fase de Grupos</h3>
+            <table class="rules-table">
+              <thead><tr><th>Acerto</th><th>Pontos</th></tr></thead>
+              <tbody>
+                <tr><td>Placar exato</td><td><strong>6 pts</strong></td></tr>
+                <tr><td>Resultado + 1 placar isolado</td><td><strong>4 pts</strong></td></tr>
+                <tr><td>Só o resultado (coluna)</td><td><strong>3 pts</strong></td></tr>
+                <tr><td>Só 1 placar isolado</td><td><strong>1 pt</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="rules-card">
+            <h3>Mata-Mata (acertar o classificado)</h3>
+            <table class="rules-table">
+              <thead><tr><th>Fase</th><th>Pontos</th></tr></thead>
+              <tbody>
+                <tr><td>16avos de final</td><td><strong>6 pts</strong></td></tr>
+                <tr><td>Oitavas de final</td><td><strong>8 pts</strong></td></tr>
+                <tr><td>Quartas de final</td><td><strong>12 pts</strong></td></tr>
+                <tr><td>Semifinal</td><td><strong>17 pts</strong></td></tr>
+                <tr><td>Final</td><td><strong>25 pts</strong></td></tr>
+                <tr><td>Campeão (bônus)</td><td><strong>40 pts</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="js/data.js"></script>
+  <script src="js/standings.js"></script>
+  <script src="js/bracket.js"></script>
+  <script src="js/scoring.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/ranking.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
