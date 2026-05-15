@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Bolão Copa 2026</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="admin-body">
+  <div id="admin-login" class="admin-login-screen">
+    <div class="login-box">
+      <div class="login-logo">⚙️</div>
+      <h1>Painel Admin</h1>
+      <p>Bolão Copa do Mundo 2026</p>
+      <div class="login-form" style="margin-top:1.5rem">
+        <input type="email"    id="admin-email-input" placeholder="E-mail do admin" autocomplete="email" />
+        <input type="password" id="admin-pass-input"  placeholder="Senha" autocomplete="current-password" />
+        <button id="admin-login-btn" class="btn-primary">Entrar</button>
+        <p id="admin-login-err" class="login-error"></p>
+      </div>
+    </div>
+  </div>
+  <div id="loading-screen" class="loading-screen" style="display:none">
+    <div class="loading-box"><div class="loading-spinner"></div><p>Carregando...</p></div>
+  </div>
+  <div id="admin-panel" style="display:none">
+    <header class="header admin-header">
+      <div class="header-inner">
+        <div class="header-logo">
+          <span class="logo-icon">⚙️</span>
+          <div><h1>Painel Admin</h1><p>Bolão Copa 2026 — Controle total</p></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button id="admin-logout-btn" class="btn-logout">Sair</button>
+        </div>
+      </div>
+    </header>
+    <nav class="main-nav">
+      <button class="nav-btn active" data-page="usuarios">Usuários</button>
+      <button class="nav-btn" data-page="resultados-grupos">Resultados — Grupos</button>
+      <button class="nav-btn" data-page="mata-mata">Mata-Mata</button>
+      <button class="nav-btn" data-page="palpites">Palpites por Usuário</button>
+      <button class="nav-btn" data-page="ranking-admin">Ranking</button>
+    </nav>
+    <main class="container">
+      <section id="page-usuarios" class="page active">
+        <div class="page-header">
+          <h2>Gerenciar Participantes</h2>
+          <p>Crie os participantes e vincule o e-mail de cada um para o login.</p>
+        </div>
+        <div class="admin-card">
+          <h3>Criar novo participante</h3>
+          <div class="form-row">
+            <input type="text"  id="new-user-name"  placeholder="Nome do participante" maxlength="40" />
+            <input type="email" id="new-user-email" placeholder="E-mail para login" />
+            <button id="btn-create-user" class="btn-primary">Criar</button>
+          </div>
+          <p id="user-msg" class="form-msg"></p>
+        </div>
+        <div class="admin-card" style="margin-top:16px">
+          <h3>Participantes cadastrados (<span id="user-count">0</span>)</h3>
+          <div id="users-list"></div>
+        </div>
+      </section>
+      <section id="page-resultados-grupos" class="page">
+        <div class="page-header">
+          <h2>Resultados — Fase de Grupos</h2>
+          <p>Insira os placares reais. A pontuação é recalculada automaticamente.</p>
+        </div>
+        <div class="groups-grid" id="admin-groups-container"></div>
+      </section>
+      <section id="page-mata-mata" class="page">
+        <div class="page-header">
+          <h2>Mata-Mata</h2>
+          <p>Defina os confrontos dos 16avos e registre os vencedores de cada fase.</p>
+        </div>
+        <div id="admin-bracket-container"></div>
+      </section>
+      <section id="page-palpites" class="page">
+        <div class="page-header">
+          <h2>Palpites por Participante</h2>
+          <p>Selecione um participante para ver ou editar seus palpites.</p>
+        </div>
+        <div class="admin-card" style="margin-bottom:16px">
+          <div class="form-row">
+            <select id="palpites-user-select">
+              <option value="">— Selecione um participante —</option>
+            </select>
+          </div>
+        </div>
+        <div id="palpites-grupos-section" style="display:none">
+          <h3 style="margin-bottom:10px;font-size:16px;color:var(--green-dark)">Palpites — Fase de Grupos</h3>
+          <div class="groups-grid" id="palpites-groups-container"></div>
+          <h3 style="margin:20px 0 10px;font-size:16px;color:var(--green-dark)">Palpites — Mata-Mata</h3>
+          <div id="palpites-bracket-container"></div>
+        </div>
+      </section>
+      <section id="page-ranking-admin" class="page">
+        <div class="page-header">
+          <h2>Ranking Geral</h2>
+          <p>Classificação completa com detalhes de pontuação.</p>
+        </div>
+        <div id="admin-ranking-container"></div>
+      </section>
+    </main>
+  </div>
+  <script src="../js/data.js"></script>
+  <script src="../js/standings.js"></script>
+  <script src="../js/bracket.js"></script>
+  <script src="../js/scoring.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/ranking.js"></script>
+  <script type="module" src="admin.js"></script>
+</body>
+</html>
