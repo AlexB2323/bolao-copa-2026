@@ -3,8 +3,8 @@
 // ============================================================
 
 const GROUPS = {
-  A: ["México",        "África do Sul",     "Coreia do Sul",       "Tchéquia"],
-  B: ["Canadá",       "Bósnia e Herzegovina",      "Catar",      "Suiça"],
+  A: ["México", "África do Sul", "Coréia do Sul", "Tchéquia"],
+  B: ["Canadá", "Bósnia e Herzegovina", "Catar", "Suíça"],
   C: ["Brasil",    "Marrocos",        "Haiti",      "Escócia"],
   D: ["Estados Unidos",       "Paraguai",        "Austrália",          "Turquia"],
   E: ["Alemanha",       "Curaçao",      "Costa do Marfim",      "Equador"],
@@ -20,12 +20,12 @@ const GROUPS = {
 const FLAGS = {
   "México":"🇲🇽",
   "África do Sul":"🇿🇦",
-  "Coreia do Sul":"🇰🇷",
+ "Coréia do Sul":"🇰🇷",
   "Tchéquia":"🇨🇿",
   "Canadá":"🇨🇦",
   "Bósnia e Herzegovina":"🇧🇦",
   "Catar":"🇶🇦",
-  "Suiça":"🇨🇭",
+  "Suíça":"🇨🇭",
   "Brasil":"🇧🇷",
   "Marrocos":"🇲🇦",
   "Haiti":"🇭🇹",
@@ -68,13 +68,118 @@ const FLAGS = {
   "Panamá":"🇵🇦",
 };
 
+const GROUP_MATCHES = {
+  A: [
+    ["México", "África do Sul"],
+    ["Coréia do Sul", "Tchéquia"],
+    ["Tchéquia", "África do Sul"],
+    ["México", "Coréia do Sul"],
+    ["Tchéquia", "México"],
+    ["África do Sul", "Coréia do Sul"],
+  ],
+
+  B: [
+    ["Canadá", "Bósnia e Herzegovina"],
+    ["Catar", "Suíça"],
+    ["Suíça", "Bósnia e Herzegovina"],
+    ["Canadá", "Catar"],
+    ["Suíça", "Canadá"],
+    ["Bósnia e Herzegovina", "Catar"],
+  ],
+
+  C: [
+    ["Brasil", "Marrocos"],
+    ["Haiti", "Escócia"],
+    ["Escócia", "Marrocos"],
+    ["Brasil", "Haiti"],
+    ["Escócia", "Brasil"],
+    ["Marrocos", "Haiti"],
+  ],
+
+  D: [
+    ["Estados Unidos", "Paraguai"],
+    ["Austrália", "Turquia"],
+    ["Turquia", "Paraguai"],
+    ["Estados Unidos", "Austrália"],
+    ["Turquia", "Estados Unidos"],
+    ["Paraguai", "Austrália"],
+  ],
+
+  E: [
+    ["Alemanha", "Curaçao"],
+    ["Costa do Marfim", "Equador"],
+    ["Alemanha", "Costa do Marfim"],
+    ["Equador", "Curaçao"],
+    ["Equador", "Alemanha"],
+    ["Curaçao", "Costa do Marfim"],
+  ],
+
+  F: [
+    ["Holanda", "Japão"],
+    ["Suécia", "Tunísia"],
+    ["Tunísia", "Japão"],
+    ["Holanda", "Suécia"],
+    ["Japão", "Suécia"],
+    ["Tunísia", "Holanda"],
+  ],
+
+  G: [
+    ["Bélgica", "Egito"],
+    ["Irã", "Nova Zelândia"],
+    ["Bélgica", "Irã"],
+    ["Nova Zelândia", "Egito"],
+    ["Egito", "Irã"],
+    ["Nova Zelândia", "Bélgica"],
+  ],
+
+  H: [
+    ["Espanha", "Cabo Verde"],
+    ["Arábia Saudita", "Uruguai"],
+    ["Espanha", "Arábia Saudita"],
+    ["Uruguai", "Cabo Verde"],
+    ["Cabo Verde", "Arábia Saudita"],
+    ["Uruguai", "Espanha"],
+  ],
+
+  I: [
+    ["França", "Senegal"],
+    ["Iraque", "Noruega"],
+    ["França", "Iraque"],
+    ["Noruega", "Senegal"],
+    ["Noruega", "França"],
+    ["Senegal", "Iraque"],
+  ],
+
+  J: [
+    ["Argentina", "Argélia"],
+    ["Áustria", "Jordânia"],
+    ["Argentina", "Áustria"],
+    ["Jordânia", "Argélia"],
+    ["Argélia", "Áustria"],
+    ["Jordânia", "Argentina"],
+  ],
+
+  K: [
+    ["Portugal", "RD Congo"],
+    ["Uzbequistão", "Colômbia"],
+    ["Portugal", "Uzbequistão"],
+    ["Colômbia", "RD Congo"],
+    ["Colômbia", "Portugal"],
+    ["RD Congo", "Uzbequistão"],
+  ],
+
+  L: [
+    ["Inglaterra", "Croácia"],
+    ["Gana", "Panamá"],
+    ["Inglaterra", "Gana"],
+    ["Panamá", "Croácia"],
+    ["Panamá", "Inglaterra"],
+    ["Croácia", "Gana"],
+  ],
+};
+
 function getGroupMatches(groupKey) {
-  const teams = GROUPS[groupKey];
-  const matches = [];
-  for (let i = 0; i < teams.length; i++)
-    for (let j = i + 1; j < teams.length; j++)
-      matches.push([teams[i], teams[j]]);
-  return matches;
+  return GROUP_MATCHES[groupKey] || [];
 }
 
 function getFlag(team) {
