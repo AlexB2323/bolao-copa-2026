@@ -87,7 +87,11 @@ function initAdminNav() {
 
 /* ---- Usuários -------------------------------------------- */
 async function renderUsersPage() {
-  const users = await DB.getUsers();
+  const users = (await DB.getUsers()).sort((a, b) => {
+  return (a.name || "").localeCompare(b.name || "", "pt-BR", {
+    sensitivity: "base"
+  });
+});
   document.getElementById("user-count").textContent = users.length;
   const list = document.getElementById("users-list");
   if (!users.length) {
@@ -503,12 +507,21 @@ async function renderAdminBracket() {
 
 /* ---- Palpites por Participante --------------------------- */
 async function refreshPalpitesSelect() {
-  const sel   = document.getElementById("palpites-user-select");
+  const sel = document.getElementById("palpites-user-select");
   const users = await DB.getUsers();
+
+  users.sort((a, b) => {
+    return (a.name || "").localeCompare(b.name || "", "pt-BR", {
+      sensitivity: "base"
+    });
+  });
+
   sel.innerHTML = `<option value="">— Selecione um participante —</option>`;
+
   users.forEach(u => {
     const o = document.createElement("option");
-    o.value = u.id; o.textContent = u.name;
+    o.value = u.id;
+    o.textContent = u.name;
     sel.appendChild(o);
   });
 }
