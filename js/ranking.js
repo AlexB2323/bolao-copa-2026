@@ -85,15 +85,12 @@ async function renderAdminRanking() {
   let lastScore = null;
   let currentRank = 0;
 
-  const MAX_LINE_CHARS = 28;
-  const POINTS_WIDTH = 6;
-  const LEFT_COL_WIDTH = MAX_LINE_CHARS - POINTS_WIDTH;
+  const MAX_LINE_CHARS = 27;   // largura segura para celular
+  const PREFIX_WIDTH = 5;      // coluna da esquerda: medalha / posição / lanterna
+  const POINTS_WIDTH = 6;      // coluna dos pontos
+  const NAME_WIDTH = MAX_LINE_CHARS - PREFIX_WIDTH - POINTS_WIDTH;
 
   const lastScoreValue = ranking[ranking.length - 1]?.total;
-
-  function getScoreCount(score) {
-    return ranking.filter(u => u.total === score).length;
-  }
 
   function visualLength(text) {
     return Array.from(text).reduce((sum, char) => {
@@ -101,51 +98,64 @@ async function renderAdminRanking() {
     }, 0);
   }
 
-  function fitLeft(text) {
-    while (visualLength(text) > LEFT_COL_WIDTH) {
-      text = Array.from(text).slice(0, -1).join("");
-    }
-
-    if (!text.endsWith(" ")) {
-      text = text.slice(0, -1) + "…";
-    }
-
-    while (visualLength(text) < LEFT_COL_WIDTH) {
+  function padEndVisual(text, width) {
+    while (visualLength(text) < width) {
       text += " ";
     }
+    return text;
+  }
 
+  function fitText(text, width) {
+    if (visualLength(text) <= width) {
+      return padEndVisual(text, width);
+    }
+
+    let chars = Array.from(text);
+
+    while (chars.length && visualLength(chars.join("") + "…") > width) {
+      chars.pop();
+    }
+
+    return padEndVisual(chars.join("") + "…", width);
+  }
+
+  function padStartVisual(text, width) {
+    while (visualLength(text) < width) {
+      text = " " + text;
+    }
     return text;
   }
 
   const lines = ranking.map((u, i) => {
-    let rankText = "";
-    let emojiText = "";
+    let showRank = false;
 
     if (u.total !== lastScore) {
       currentRank = i + 1;
-      rankText = `${currentRank}° `;
       lastScore = u.total;
+      showRank = true;
     }
 
-    const scoreCount = getScoreCount(u.total);
-
-    if (currentRank === 1 && rankText) {
-      emojiText = "🥇 ";
-    } else if (currentRank === 2 && rankText) {
-  emojiText = "🥈 ";
-} else if (currentRank === 3 && rankText) {
-  emojiText = "🥉 ";
-}
+    let prefix = "";
 
     if (u.total === lastScoreValue) {
-  rankText = "";
-  emojiText = "🔦 ";
-}
+      prefix = "🔦";
+    } else if (showRank) {
+      if (currentRank === 1) {
+        prefix = "🥇";
+      } else if (currentRank === 2) {
+        prefix = "🥈";
+      } else if (currentRank === 3) {
+        prefix = "🥉";
+      } else {
+        prefix = `${currentRank}°`;
+      }
+    }
 
-    const left = `${rankText}${emojiText}${u.name} - `;
-    const points = `${u.total} pts`.padStart(POINTS_WIDTH, " ");
+    const prefixCol = padEndVisual(prefix, PREFIX_WIDTH);
+    const nameCol = fitText(u.name, NAME_WIDTH);
+    const pointsCol = padStartVisual(`${u.total} pts`, POINTS_WIDTH);
 
-    return `${fitLeft(left)}${points}`;
+    return `${prefixCol}${nameCol}${pointsCol}`;
   });
 
   const text = "```\n🏆 Ranking Bolão Copa 2026\n\n" + lines.join("\n") + "\n```";
