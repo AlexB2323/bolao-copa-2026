@@ -82,13 +82,86 @@ async function renderAdminRanking() {
     </div>`;
 
   document.getElementById("btn-copy-ranking").addEventListener("click", () => {
-    const pos=["1°","2°","3°"];
-    const text="🏆 Ranking Bolão Copa 2026\n\n"+ranking.map((u,i)=>`${pos[i]||i+1+"°"} ${u.name} - ${u.total} Pontos`).join("\n");
-    navigator.clipboard.writeText(text).catch(()=>{
-      const ta=document.createElement("textarea"); ta.value=text; ta.style.cssText="position:fixed;opacity:0";
-      document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
-    });
-    const fb=document.getElementById("copy-feedback");
-    fb.style.display="block"; setTimeout(()=>fb.style.display="none",3000);
+  let lastScore = null;
+  let currentRank = 0;
+
+  const MAX_LINE_CHARS = 28;
+  const POINTS_WIDTH = 6;
+  const LEFT_COL_WIDTH = MAX_LINE_CHARS - POINTS_WIDTH;
+
+  const lastScoreValue = ranking[ranking.length - 1]?.total;
+
+  function getScoreCount(score) {
+    return ranking.filter(u => u.total === score).length;
+  }
+
+  function visualLength(text) {
+    return Array.from(text).reduce((sum, char) => {
+      return sum + (/[\u{1F300}-\u{1FAFF}]/u.test(char) ? 2 : 1);
+    }, 0);
+  }
+
+  function fitLeft(text) {
+    while (visualLength(text) > LEFT_COL_WIDTH) {
+      text = Array.from(text).slice(0, -1).join("");
+    }
+
+    if (!text.endsWith(" ")) {
+      text = text.slice(0, -1) + "…";
+    }
+
+    while (visualLength(text) < LEFT_COL_WIDTH) {
+      text += " ";
+    }
+
+    return text;
+  }
+
+  const lines = ranking.map((u, i) => {
+    let rankText = "";
+    let emojiText = "";
+
+    if (u.total !== lastScore) {
+      currentRank = i + 1;
+      rankText = `${currentRank}° `;
+      lastScore = u.total;
+    }
+
+    const scoreCount = getScoreCount(u.total);
+
+    if (currentRank === 1 && rankText) {
+      emojiText = "🥇 ";
+    } else if (currentRank === 2 && rankText) {
+  emojiText = "🥈 ";
+} else if (currentRank === 3 && rankText) {
+  emojiText = "🥉 ";
+}
+
+    if (u.total === lastScoreValue) {
+  rankText = "";
+  emojiText = "🔦 ";
+}
+
+    const left = `${rankText}${emojiText}${u.name} - `;
+    const points = `${u.total} pts`.padStart(POINTS_WIDTH, " ");
+
+    return `${fitLeft(left)}${points}`;
   });
+
+  const text = "```\n🏆 Ranking Bolão Copa 2026\n\n" + lines.join("\n") + "\n```";
+
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand("copy");
+    document.body.removeChild(ta);
+  });
+
+  const fb = document.getElementById("copy-feedback");
+  fb.style.display = "block";
+  setTimeout(() => fb.style.display = "none", 3000);
+});
 }
