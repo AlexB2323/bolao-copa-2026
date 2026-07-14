@@ -526,13 +526,106 @@ async function refreshPalpitesSelect() {
   });
 }
 
+
+async function renderTopScorerBonus(userId) {
+  // Remove o card anterior ao trocar de participante
+  document.getElementById("top-scorer-bonus-card")?.remove();
+
+  const bonuses = await DB.getTopScorerBonuses();
+
+  // O participante pode ter sido trocado enquanto os dados carregavam
+  const currentUid = document.getElementById("palpites-user-select").value;
+  if (currentUid !== userId) return;
+
+  let isCorrect = bonuses[userId] === true;
+
+  const card = document.createElement("div");
+  card.id = "top-scorer-bonus-card";
+  card.style.cssText = `
+    margin:0 0 18px;
+    padding:18px;
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius);
+    background:#fff;
+  `;
+
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+      <div>
+        <strong style="display:block;color:var(--gray-800);margin-bottom:4px">
+          Bônus do artilheiro
+        </strong>
+        <span style="font-size:13px;color:#64748b">
+          Marque quando o participante tiver acertado o artilheiro da competição.
+        </span>
+      </div>
+      <button type="button" id="top-scorer-bonus-btn" class="btn-sm"></button>
+    </div>
+    <p id="top-scorer-bonus-msg" style="margin:10px 0 0;font-size:12px;min-height:16px"></p>
+  `;
+
+  // Fica logo abaixo da seleção do participante e antes dos palpites dos grupos
+  const groupsContainer = document.getElementById("palpites-groups-container");
+  groupsContainer.insertAdjacentElement("beforebegin", card);
+
+  const btn = card.querySelector("#top-scorer-bonus-btn");
+  const msg = card.querySelector("#top-scorer-bonus-msg");
+
+  function updateButton() {
+    btn.setAttribute("aria-pressed", String(isCorrect));
+    btn.textContent = isCorrect
+      ? "✅ Artilheiro correto — +10 pontos"
+      : "○ Marcar acerto do artilheiro (+10 pontos)";
+
+    btn.style.cssText = isCorrect
+      ? "background:#16a34a;color:#fff;border:1px solid #16a34a;padding:9px 13px;border-radius:6px;cursor:pointer;font-weight:700"
+      : "background:#fff;color:#475569;border:1px solid #cbd5e1;padding:9px 13px;border-radius:6px;cursor:pointer;font-weight:700";
+  }
+
+  updateButton();
+
+  btn.addEventListener("click", async () => {
+    const newValue = !isCorrect;
+    btn.disabled = true;
+    msg.textContent = "Salvando...";
+    msg.style.color = "#64748b";
+
+    try {
+      await DB.saveTopScorerCorrect(userId, newValue);
+      isCorrect = newValue;
+      updateButton();
+      msg.textContent = isCorrect
+        ? "Bônus de 10 pontos aplicado."
+        : "Bônus de 10 pontos removido.";
+      msg.style.color = isCorrect ? "#16a34a" : "#dc2626";
+    } catch (e) {
+      console.error("Erro ao salvar bônus do artilheiro:", e);
+      msg.textContent = "Não foi possível salvar. Tente novamente.";
+      msg.style.color = "#dc2626";
+    } finally {
+      btn.disabled = false;
+      setTimeout(() => {
+        if (msg) msg.textContent = "";
+      }, 2500);
+    }
+  });
+}
+
 async function renderPalpitesPage() { await refreshPalpitesSelect(); }
 
 document.getElementById("palpites-user-select").addEventListener("change", async function() {
   const uid = this.value;
   const sec = document.getElementById("palpites-grupos-section");
-  if (!uid) { sec.style.display = "none"; return; }
+
+  document.getElementById("top-scorer-bonus-card")?.remove();
+
+  if (!uid) {
+    sec.style.display = "none";
+    return;
+  }
+
   sec.style.display = "block";
+  await renderTopScorerBonus(uid);
   await renderGroups(uid, "palpites-groups-container", async () => {});
   await renderBracket(uid, "palpites-bracket-container", async () => {});
 });
