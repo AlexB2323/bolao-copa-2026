@@ -152,10 +152,11 @@ function getClassifiedTeams(bracketData) {
 
 // ---- Cálculo principal -------------------------------------
 async function calcUserScore(userId) {
-  const scores      = await DB.getUserScores(userId);
-  const picks       = await DB.getUserPicks(userId);
-  const realG       = await DB.getResultsGroups();
-  const bracketData = await DB.getBracketData();
+  const scores          = await DB.getUserScores(userId);
+  const picks           = await DB.getUserPicks(userId);
+  const realG           = await DB.getResultsGroups();
+  const bracketData     = await DB.getBracketData();
+  const topScorerBonus  = await DB.getTopScorerBonuses();
 
   let groupPts = 0, koPts = 0;
   const groupDetail = [];
@@ -214,6 +215,11 @@ async function calcUserScore(userId) {
     koPts   += champPts;
   }
 
+  // Bônus manual do artilheiro
+  const topScorerCorrect = topScorerBonus[userId] === true;
+  const topScorerPts     = topScorerCorrect ? 10 : 0;
+  koPts += topScorerPts;
+
   // Sumário por fase
   const koSummary = buildKoSummary(picks, classified, bracketData);
 
@@ -222,6 +228,7 @@ async function calcUserScore(userId) {
     groupPts, koPts,
     groupDetail, koDetail, koSummary,
     champPick: pickChamp, champReal: realChamp, champPts,
+    topScorerCorrect, topScorerPts,
   };
 }
 
