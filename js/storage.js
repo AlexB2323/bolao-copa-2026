@@ -78,6 +78,20 @@ const DB = {
     await setDoc(doc(db, "results", "bracket"), data);
   },
 
+  // ---- Bônus do artilheiro ---------------------------------
+  async getTopScorerBonuses() {
+    const snap = await getDoc(doc(db, "results", "topScorer"));
+    return snap.exists() ? snap.data() : {};
+  },
+
+  async saveTopScorerCorrect(userId, isCorrect) {
+    await setDoc(
+      doc(db, "results", "topScorer"),
+      { [userId]: Boolean(isCorrect) },
+      { merge: true }
+    );
+  },
+
   // ---- Cartões (Fair Play) ---------------------------------
   async getResultsCards() {
     const snap = await getDoc(doc(db, "results", "cards"));
@@ -90,9 +104,11 @@ const DB = {
 };
 
 function watchResults(callback) {
-  const u1 = onSnapshot(doc(db, "results", "groups"),  () => callback());
-  const u2 = onSnapshot(doc(db, "results", "bracket"), () => callback());
-  return () => { u1(); u2(); };
+  const u1 = onSnapshot(doc(db, "results", "groups"),    () => callback());
+  const u2 = onSnapshot(doc(db, "results", "bracket"),   () => callback());
+  const u3 = onSnapshot(doc(db, "results", "topScorer"), () => callback());
+
+  return () => { u1(); u2(); u3(); };
 }
 
 export { DB, watchResults };
